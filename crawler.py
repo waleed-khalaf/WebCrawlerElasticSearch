@@ -1,4 +1,6 @@
 import re
+from collections import deque
+from urllib.parse import urlparse, urljoin
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -7,11 +9,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.common.exceptions import TimeoutException
 
-# TODO: Create list of urls to begin scraping at
-# TODO: Use traversal algorithm to find all the links on the site
-# TODO: Scrape the information from those sites
-# TODO: Normalise data for elasticsearch
-# TODO: Upload to elasticsearch
 
 options = Options()
 options.add_argument("--headless")
@@ -36,15 +33,52 @@ urls_to_scrape = [href for href in all_href if href != "" and re.search(pattern,
 for link in urls_to_scrape:
     print(link)
 
-# Some sort of graph algorithm (BFS) to find all the webpages on the site
+#TODO: (BFS) to find all the webpages on the site then compare with the brute force number, expecting it to be higher than BF number:w
 
-# Save links to some sort of data structure 
+url_dict = dict()
+
+def search_url(root_url):
+    url_queue = deque()
+    search_queue += url_dict[root_url]
+    visited_urls = set()
+    while search_queue:
+        url = search_queue.popleft()
+        if url not in visited_urls:
+            if url:
+                pass
+            else:
+                # selenium to scrape the page for links (to create dict entry for url_dict[new_url])
+                new_url = ""
+                search_queue += url_dict[new_url]
+                visited_urls.add()
+
+
+
+
+# def search(name):
+#     search_queue = deque()
+#     search_queue += graph[name]
+#     searched = []
+#     while search_queue:
+#         person = search_queue.popleft()
+#         if not person in searched:
+#             if person_is_seller(person):
+#                 print(person + " is a mango seller!")
+#                 return True
+#             else:
+#                 search_queue += graph[person]
+#                 searched.append(person)
+#     return False
+
+# search("you")
+
+#TODO: Save links to some sort of data structure 
 
 driver.quit()
 
 
-# Use bs4 access to parse the html 
+#TODO: Use bs4 access to parse the html 
 
-# Normalize data to be ingested by ElasticSearch 
+#TODO: Normalize data to be ingested by ElasticSearch 
 
-# Upload data to ElasticSearch
+#TODO: Upload data to ElasticSearch
