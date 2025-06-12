@@ -12,6 +12,7 @@ from selenium.common.exceptions import TimeoutException
 
 options = Options()
 options.add_argument("--headless")
+options.add_argument("--disable-gpu")
 driver = webdriver.Firefox(options=options)
 driver.get("https://www.burgan.com")
 WebDriverWait(driver, 30).until(
@@ -20,9 +21,6 @@ WebDriverWait(driver, 30).until(
 
 # BRUTE FORCE
 links_to_filter = driver.find_elements(By.TAG_NAME, "a")
-print(f"Found {len(links_to_filter)} links to filter through") 
-print()
-
 pattern = re.compile(r"^https://(?:www\.)?burgan\.com(?:$|/).*")
 
 
@@ -30,49 +28,55 @@ all_href = [link.get_attribute("href") for link in links_to_filter]
 urls_to_scrape = [href for href in all_href if href != "" and re.search(pattern, href)]
 
 
-for link in urls_to_scrape:
-    print(link)
+print(len(urls_to_scrape))
+for url in urls_to_scrape:
+    print(url)
+print("End of basic crawl")
 
 #TODO: (BFS) to find all the webpages on the site then compare with the brute force number, expecting it to be higher than BF number:w
 
-url_dict = dict()
-
-def search_url(root_url):
+def get_domain_links(start_url):
     url_queue = deque()
-    search_queue += url_dict[root_url]
+    url_queue += [start_url]
     visited_urls = set()
-    while search_queue:
-        url = search_queue.popleft()
+    base_domain = urlparse(start_url).netloc
+
+    while url_queue:
+        url = url_queue.popleft()
+        print(f"Visting: {url}\n")
+        try:
+            driver.get(url)
+        except Exception as err:
+            print(f"Failed to load {url}: {err}")
+            continue
+
         if url not in visited_urls:
-            if url:
-                pass
-            else:
-                # selenium to scrape the page for links (to create dict entry for url_dict[new_url])
-                new_url = ""
-                search_queue += url_dict[new_url]
-                visited_urls.add()
+            WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located(
+                   (By.TAG_NAME,"a"))
+                   )
+            for a_tag in driver.find_elements(By.TAG_NAME, "a"):
+                href = a_tag.get_attribute("href")
+                print(href)
+                if not href:
+                    continue
+                   
+                parts = urlparse(href)
+                if parts.netloc != base_domain:
+                    continue
+                normalized = f"{parts.scheme}://{parts.netloc}{parts.path}"
+                if normalized not in visited_urls:
+                    url_queue += [normalized]
+                    visited_urls.add(normalized)
+       
+    return visited_urls
 
 
 
+print("\nStarting BFS Crawl")
 
-# def search(name):
-#     search_queue = deque()
-#     search_queue += graph[name]
-#     searched = []
-#     while search_queue:
-#         person = search_queue.popleft()
-#         if not person in searched:
-#             if person_is_seller(person):
-#                 print(person + " is a mango seller!")
-#                 return True
-#             else:
-#                 search_queue += graph[person]
-#                 searched.append(person)
-#     return False
-
-# search("you")
-
-#TODO: Save links to some sort of data structure 
+scraped_domains = get_domain_links("https://www.burgan.com")
+print(f"Amount of Domains: {len(scraped_domains)}")
+print()
 
 driver.quit()
 
