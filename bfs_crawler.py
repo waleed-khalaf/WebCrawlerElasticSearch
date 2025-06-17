@@ -56,26 +56,19 @@ def clean_url(url_to_clean: str, root_url: str) -> str | None:
 
     # 6) Drop any path containing a "hang" term
     path_lower = parsed.path.lower()
-    if any(pat in path_lower for pat in HANG_PATTERNS):
+    if any(path in path_lower for path in HANG_PATTERNS):
         return None
 
     return normalized
-
     
+# TODO add politeness to prevent getting banned 
+def bfs_crawler(root_url: str) -> list:
 
-
-def bfs_crawler(root_url):
-
-    # Selenium 
     options = Options()
     options.add_argument("--headless")
     options.add_argument("--disable-gpu")
     driver = webdriver.Firefox(options=options)
     driver.set_page_load_timeout(30)
-
-    # Parsing url
-    url_domain = urlparse(root_url).netloc
-    print(url_domain)
 
     # BFS 
     url_queue = deque()
