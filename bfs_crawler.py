@@ -1,4 +1,4 @@
-import time
+from time import sleep
 import random
 from urllib.parse import urlparse, urldefrag, urlunparse, urljoin
 from collections import deque
@@ -70,7 +70,7 @@ def clean_url(url_to_clean: str, root_url: str) -> str | None:
 
 
 # TODO Parse Html loaded from selenium with bs4
-def parse_hrefs():
+def parse_hrefs(url_to_parse) -> dict:
     pass
 
 # TODO add politeness to prevent getting banned 
@@ -118,7 +118,7 @@ def bfs_crawler(root_url: str) -> list:
                     continue
             print(f"{len(url_queue)} pages in queue")
 
-            time.sleep(1.0 + random.uniform(0,1.0))
+            sleep(1.0 + random.uniform(0,1.0))
                 
         except TimeoutException as err:
             print(f"{err}\t{url} took long to load.")
